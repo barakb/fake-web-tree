@@ -80,8 +80,13 @@ func main() {
      <a href="/{{.Current}}/index.html">back</a>
 </body>
 </html>`)
+	fmt.Println("starting web server")
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", servTree)
-	http.ListenAndServe(":8080", mux)
+	err := http.ListenAndServe(":8080", mux)
+	if err != nil{
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
 
 }
