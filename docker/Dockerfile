@@ -25,3 +25,5 @@ WORKDIR /golang/fake-web-tree
 COPY serve.sh /golang/fake-web-tree/
 
 EXPOSE 8080
+
+ENTRYPOINT ["/golang/fake-web-tree/serve.sh"]

@@ -7,4 +7,4 @@ export GOPATH=/golang/fake-web-tree
 
 go build -o bin/fake-web-tree github.com/barakb/fake-web-tree/main
 
-./bin/fake-web-tree
+./bin/fake-web-tree $*

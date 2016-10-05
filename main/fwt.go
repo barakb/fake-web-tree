@@ -48,7 +48,11 @@ func getRequestedNode(url string) (int, error) {
 func main() {
 	graph = flag.Bool("graph", false, "create graph instead of tree")
 	flag.Parse()
-	fmt.Printf("graph is %v\n", *graph)
+	if *graph{
+		fmt.Println("graph mode is on")
+	}else{
+		fmt.Println("graph mode is off")
+	}
 	re = regexp.MustCompile("/([0-9]+)/index.html")
 	treeTemplate = template.New("tree template")
 	treeTemplate.Parse(`
