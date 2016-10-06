@@ -7,27 +7,32 @@ import (
 	"regexp"
 	"strconv"
 	"html/template"
+	"math"
 )
 
 var re *regexp.Regexp
 var treeTemplate *template.Template
 var graphTemplate *template.Template
-var graph  *bool;
+var graph  *bool
+var depth *int
 
 func servTree(w http.ResponseWriter, r *http.Request) {
-	if r.RequestURI == "/favicon.ico"{
+	if r.RequestURI == "/favicon.ico" {
 		http.Error(w, `StatusNotFound`, http.StatusNotFound)
 		return
 	}
 	var n int = 0
 	n, _ = getRequestedNode(r.RequestURI)
-	childrens := []int { 2 * n, (2 * n) + 1}
+	childrens := []int{2 * n, (2 * n) + 1}
+	if 0 < *depth && *depth == int(math.Floor(math.Log2(float64(2 * n)))){
+		childrens = []int{}
+	}
 	if *graph {
 		graphTemplate.Execute(w, struct {
 			Childes []int
 			Current int
 		}{childrens, n / 2})
-	}else{
+	} else {
 		treeTemplate.Execute(w, struct {
 			Childes []int
 			Current int
@@ -47,11 +52,18 @@ func getRequestedNode(url string) (int, error) {
 
 func main() {
 	graph = flag.Bool("graph", false, "create graph instead of tree")
+	depth = flag.Int("depth", 0, "detairmain the max node id that should return")
 	flag.Parse()
-	if *graph{
+	if *graph {
 		fmt.Println("graph mode is on")
-	}else{
+	} else {
 		fmt.Println("graph mode is off")
+	}
+
+	if 0 < *depth {
+		fmt.Printf("max depth is %d\n", *depth)
+	} else {
+		fmt.Println("depth is unlimited")
 	}
 	re = regexp.MustCompile("/([0-9]+)/index.html")
 	treeTemplate = template.New("tree template")
@@ -88,7 +100,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", servTree)
 	err := http.ListenAndServe(":8080", mux)
-	if err != nil{
+	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return
 	}
