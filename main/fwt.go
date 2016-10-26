@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"html/template"
 	"math"
+	"time"
+	"gopkg.in/tylerb/graceful.v1"
 )
 
 var re *regexp.Regexp
@@ -15,6 +17,7 @@ var treeTemplate *template.Template
 var graphTemplate *template.Template
 var graph  *bool
 var depth *int
+var port *int
 
 func servTree(w http.ResponseWriter, r *http.Request) {
 	if r.RequestURI == "/favicon.ico" {
@@ -53,6 +56,8 @@ func getRequestedNode(url string) (int, error) {
 func main() {
 	graph = flag.Bool("graph", false, "create graph instead of tree")
 	depth = flag.Int("depth", 0, "detairmain the max node id that should return")
+	port = flag.Int("port", 8080, "http port")
+
 	flag.Parse()
 	if *graph {
 		fmt.Println("graph mode is on")
@@ -65,6 +70,8 @@ func main() {
 	} else {
 		fmt.Println("depth is unlimited")
 	}
+	fmt.Printf("configured port is %d\n", *port)
+
 	re = regexp.MustCompile("/([0-9]+)/index.html")
 	treeTemplate = template.New("tree template")
 	treeTemplate.Parse(`
@@ -99,10 +106,11 @@ func main() {
 	fmt.Println("starting web server")
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", servTree)
-	err := http.ListenAndServe(":8080", mux)
-	if err != nil {
-		fmt.Printf("Error: %v\n", err)
-		return
-	}
+	graceful.Run(fmt.Sprintf(":%d", *port),10*time.Second,mux)
+	//err := http.ListenAndServe(fmt.Sprintf(":%d", port), mux)
+	//if err != nil {
+	//	fmt.Printf("Error: %v\n", err)
+	//	return
+	//}
 
 }

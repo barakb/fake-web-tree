@@ -1,2 +1,4 @@
 package: .
-import: []
+import:
+- package: gopkg.in/tylerb/graceful.v1
+  version: ^1.2.13
